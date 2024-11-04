@@ -21,11 +21,19 @@ export class LoginPage {
     await this.page.locator(loginLocators.passwordInputLocator).fill(password);await this.page.locator(loginLocators.signInBtnLocator).click();
   }
 
+  private async validateLoginElementsVisible() {
+    //await expect(this.page.locator(loginLocators.createOneBtnLocator)).toBeVisible();
+    await expect(this.page.locator(loginLocators.welcomeTxtLocator)).toBeVisible();
+    await expect(this.page.locator(loginLocators.passwordInputLocator)).toBeVisible();
+    await expect(this.page.locator(loginLocators.userNameInputLocator)).toBeVisible();
+    await expect(this.page.locator(loginLocators.signInBtnLocator)).toBeVisible();
+  }
   async loginCorrect() {
+    this.validateLoginElementsVisible();
     await this.performLogin(this.correctUsername, this.correctPassword);
-    await expect(this.page.locator(homeLocators.postsBtnLocator)).toBeVisible();
     await expect(this.page.locator(homeLocators.createPostBtnLocator)).toBeVisible();
     await expect(this.page.locator(homeLocators.logoutBtnLocator)).toBeVisible();
+    await expect(this.page.locator(homeLocators.postsBtnLocator)).toBeVisible();
     await expect(this.page.locator(homeLocators.profileBtnLocator)).toBeVisible();
   }
 
@@ -46,5 +54,11 @@ export class LoginPage {
     const randomPass = this.correctPassword + generateRandomText();
     await this.performLogin(randomUsername, randomPass);
     await expect(this.page.locator(loginLocators.invalidCredentialsAlertLocator)).toBeVisible();
+  }
+
+  async logout(){
+    await this.performLogin(this.correctUsername, this.correctPassword);
+    await this.page.locator(homeLocators.logoutBtnLocator).click();
+    await this.validateLoginElementsVisible();
   }
 }
