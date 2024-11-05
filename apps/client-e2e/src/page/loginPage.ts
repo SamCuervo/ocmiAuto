@@ -12,7 +12,7 @@ export class LoginPage {
     this.page = page;
   }
 
-  private async performLogin(username: string, password: string) {
+  async performLogin(username: string, password: string) {
     const apiUrl = (url: string) => `http://localhost:4200${url}`;
     await this.page.goto(apiUrl('/login'));
     await expect(this.page.locator(loginLocators.userNameInputLocator).getAttribute('placeholder')).resolves.toBe('Username');
