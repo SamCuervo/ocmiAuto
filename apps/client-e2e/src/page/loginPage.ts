@@ -1,7 +1,8 @@
 import { expect, type Page } from '@playwright/test';
 import { loginLocators } from '../data/loginLocators';
 import { generateRandomText } from '../helpers/utils';
-import { homeLocators } from '../data/homeLocators'
+import { homeLocators } from '../data/homeLocators';
+import { HomePage } from './homePage';
 
 export class LoginPage {
   private page: Page;
@@ -31,10 +32,8 @@ export class LoginPage {
   async loginCorrect() {
     this.validateLoginElementsVisible();
     await this.performLogin(this.correctUsername, this.correctPassword);
-    await expect(this.page.locator(homeLocators.createPostBtnLocator)).toBeVisible();
-    await expect(this.page.locator(homeLocators.logoutBtnLocator)).toBeVisible();
-    await expect(this.page.locator(homeLocators.postsBtnLocator)).toBeVisible();
-    await expect(this.page.locator(homeLocators.profileBtnLocator)).toBeVisible();
+    const homePage = new HomePage(this.page);
+    await homePage.validateHomePageElementsVisibility();
   }
 
   async loginWithCorrectUserIncorrectPassword() {

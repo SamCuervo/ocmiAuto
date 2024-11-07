@@ -1,4 +1,8 @@
 import { expect, test } from '@playwright/test';
+import { LoginPage } from '../src/page/loginPage';
+import { homeLocators } from '../src/data/homeLocators';
+import { HomePage } from '../src/page/homePage';
+import { postsLocators } from '../src/data/postsLocators';
 
 test.use({
   screenshot: 'only-on-failure',
@@ -13,6 +17,8 @@ const testUser = {
   password: 'testpassword',
 };
 
+
+//test de ejemplo
 test.describe.skip('Posts Home Screen', () => {
   // Initialize session token for API calls
   let authToken: string;
@@ -212,5 +218,23 @@ test.describe.skip('Posts Home Screen', () => {
     } catch (error) {
       console.error('Failed to logout after tests:', error);
     }
+  });
+});
+
+test.describe('tests profile', ()=>{
+  test.beforeEach(async ({page})=>{
+      const loginPage = new LoginPage(page);
+      await loginPage.performLogin('testuser','testpassword');
+      await page.locator(homeLocators.createPostBtnLocator).click();
+  });
+  test('verify Cancel Button Functionality On New Post Creation', async ({ page }) => {
+    await page.locator(postsLocators.cancelBtnLocator).click();
+    const homePage = new HomePage(page);
+    await homePage.validateHomePageElementsVisibility();
+  });
+  test('verify Close Button Functionality On New Post Creation', async ({ page }) => {
+    await page.locator(postsLocators.closeBtnLocator).click();
+    const homePage = new HomePage(page);
+    await homePage.validateHomePageElementsVisibility();
   });
 });
