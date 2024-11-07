@@ -1,8 +1,7 @@
 import { expect, type Page } from '@playwright/test';
-import sqlite3 from 'sqlite3';
-import { open } from 'sqlite';
 import { homeLocators } from '../data/homeLocators';
 import { profileLocators } from '../data/profileLocators';
+import { DatabaseService } from '../helpers/databaseService'
 
 export class ProfilePage {
   private page: Page;
@@ -36,33 +35,10 @@ export class ProfilePage {
     return userInfo;
   }
 
-  // Método para obtener la información del usuario desde la base de datos SQLite
-  //NOTA no supe de donde sale el Account status para poder realizar tambien una assercion de este apartado
-  private async getUserInfoFromDatabase(userId: number): Promise<{ [key: string]: string }> {
-    const db = await open({
-      filename: '../../database.sqlite',
-      driver: sqlite3.Database,
-    });
-
-    const query = 'SELECT id, username, favoriteBook FROM users WHERE id = ?';
-    const row = await db.get(query, userId);
-    await db.close();
-
-    if (!row) {
-      throw new Error(`No se encontró un usuario con ID ${userId}`);
-    }
-
-    return {
-      "User ID": row["id"].toString(),
-      "User name": row["username"].toString(),
-      "User favoriteBook": row["favoriteBook"] !== null ? row["favoriteBook"].toString() : "No favorite book selected",
-    };
-  }
-
   // Método para comparar la información de la página con la de la base de datos
   async verifyUserInfo(userId: number) {
     const pageInfo = await this.getUserInfoFromPage();
-    const dbInfo = await this.getUserInfoFromDatabase(userId);
+    const dbInfo = await DatabaseService.getUserInfoFromDatabase(1);
 
     expect(pageInfo['User name']).toEqual(dbInfo['User name']);
     expect(pageInfo['User ID']).toEqual(dbInfo['User ID']);
@@ -70,26 +46,6 @@ export class ProfilePage {
 
   }
 
-  // Método para obtener las tablas en la base de datos SQLite
-  async getDatabaseTables(): Promise<string[]> {
-    const db = await open({
-      filename: '../../database.sqlite',
-      driver: sqlite3.Database,
-    });
-    const tables = await db.all(`SELECT name FROM sqlite_master WHERE type='table'`);
-    await db.close();
-    return tables.map(table => table.name);
-  }
-  //metodo para traer las columnas de una tabla
-  async getUserTableColumns(): Promise<string[]> {
-    const db = await open({
-      filename: '../../database.sqlite',
-      driver: sqlite3.Database,
-    });
-    const columns = await db.all(`PRAGMA table_info(users)`);
-    await db.close();
-    return columns.map(column => column.name);
-  }
   private async getBookInfoFromAPI(book: string): Promise<{ author_name: string, title: string, first_publish_year: number | null }> {
     const response = await this.page.context().request.get(`https://openlibrary.org/search.json?q=${book}&limit=5`);
   
@@ -122,7 +78,7 @@ export class ProfilePage {
     const book = `Harry Potter and the Philosopher's Stone`;
     const expectedAuthor = 'J. K. Rowling';
     const infoApi = await this.getBookInfoFromAPI(book);
-    const dbInfo = await this.getUserInfoFromDatabase(1);
+    const dbInfo = await DatabaseService.getUserInfoFromDatabase(1);
     const expectedAuthorDate="by " + infoApi['author_name'] + " ("+infoApi['first_publish_year']+")";
 
     await this.page.locator(homeLocators.profileBtnLocator).click();

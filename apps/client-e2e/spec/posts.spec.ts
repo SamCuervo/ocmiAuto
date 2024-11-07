@@ -3,6 +3,7 @@ import { LoginPage } from '../src/page/loginPage';
 import { homeLocators } from '../src/data/homeLocators';
 import { HomePage } from '../src/page/homePage';
 import { postsLocators } from '../src/data/postsLocators';
+import { PostsPage } from '../src/page/postsPage';
 
 test.use({
   screenshot: 'only-on-failure',
@@ -236,5 +237,10 @@ test.describe('tests profile', ()=>{
     await page.locator(postsLocators.closeBtnLocator).click();
     const homePage = new HomePage(page);
     await homePage.validateHomePageElementsVisibility();
+  });
+  test.only('Create Post', async ({ page }) => {
+    const postsPage = new PostsPage(page);
+    //await postsPage.createPost();
+    await postsPage.validatePostsBD();
   });
 });
