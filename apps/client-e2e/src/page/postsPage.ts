@@ -11,22 +11,19 @@ export class PostsPage {
   }
   // Obtener todos los títulos de los posts desde la página (usando Playwright)
   private async getPostTitlesFromPage(): Promise<string[]> {
-    const titles = await this.page.$$eval(postsLocators.titlePostTxtLocator, (elements: HTMLElement[]) => {
-        // Usamos .textContent si los títulos están en elementos como div, span, h1, etc.
-        return elements.map(element => element.textContent?.trim() || '');
-    });
-    return titles;
+    const titles = await this.page.locator('h3.text-2xl.font-semibold').allInnerTexts();
+    return titles.map(title => title.trim());
 }
 
 // Validar que los títulos de los posts de la base de datos estén en la página
 async validatePostsBD(): Promise<void> {
-    // Obtener los títulos de la base de datos (debes implementar esto en tu servicio)
     const dbPostTitles = await DatabaseService.getPostsTitlesByAuthor(1);
-    console.log('Titles from the database:', dbPostTitles);
-
-    // Obtener los títulos de los posts en la página
+    //console.log('Titles from the database:', dbPostTitles);
     const pagePostTitles = await this.getPostTitlesFromPage();
-    console.log('Titles from the page:', pagePostTitles);
+    //console.log('Titles from the page:', pagePostTitles);
+    dbPostTitles.forEach(title => {
+      expect(pagePostTitles).toContain(title.trim());
+  });
 }
   async createPost() {
     const titleRandom = generateRandomText();

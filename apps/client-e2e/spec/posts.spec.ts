@@ -240,7 +240,7 @@ test.describe('tests profile', ()=>{
   });
   test.only('Create Post', async ({ page }) => {
     const postsPage = new PostsPage(page);
-    //await postsPage.createPost();
+    await postsPage.createPost();
     await postsPage.validatePostsBD();
   });
 });

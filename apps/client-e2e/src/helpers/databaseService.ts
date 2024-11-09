@@ -37,13 +37,7 @@ export class DatabaseService {
 
     const query = 'SELECT title FROM posts WHERE authorId = ?';
     const rows = await this.dbInstance.all(query, authorId);
-
-    if (!rows || rows.length === 0) {
-      throw new Error(`No se encontraron posts para el autor con ID ${authorId}`);
-    }
-
-    // Extraemos solo los títulos de los posts y los devolvemos en un array
-    return rows.map(row => row.title);
+    return rows.length > 0 ? rows.map(row => row.title) : [];
 }
 
   // Método para cerrar la conexión a la base de datos (si lo deseas)
