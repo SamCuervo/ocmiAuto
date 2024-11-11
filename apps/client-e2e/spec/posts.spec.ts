@@ -4,6 +4,8 @@ import { homeLocators } from '../src/data/homeLocators';
 import { HomePage } from '../src/page/homePage';
 import { postsLocators } from '../src/data/postsLocators';
 import { PostsPage } from '../src/page/postsPage';
+import { clickRandomLocator } from '../src/helpers/utils';
+import { DatabaseService } from '../src/helpers/databaseService';
 
 test.use({
   screenshot: 'only-on-failure',
@@ -17,7 +19,6 @@ const testUser = {
   username: 'testuser',
   password: 'testpassword',
 };
-
 
 //test de ejemplo
 test.describe.skip('Posts Home Screen', () => {
@@ -222,25 +223,89 @@ test.describe.skip('Posts Home Screen', () => {
   });
 });
 
-test.describe('tests profile', ()=>{
-  test.beforeEach(async ({page})=>{
-      const loginPage = new LoginPage(page);
-      await loginPage.performLogin('testuser','testpassword');
-      await page.locator(homeLocators.createPostBtnLocator).click();
+test.describe('tests profile new post CANCEL', () => {
+  test.beforeEach(async ({ page }) => {
+    const loginPage = new LoginPage(page);
+    await loginPage.performLogin('testuser', 'testpassword');
+    await page.locator(homeLocators.createPostBtnLocator).click();
   });
-  test('verify Cancel Button Functionality On New Post Creation', async ({ page }) => {
+  test('verify Cancel Button Functionality On New Post Creation', async ({
+    page,
+  }) => {
     await page.locator(postsLocators.cancelBtnLocator).click();
     const homePage = new HomePage(page);
     await homePage.validateHomePageElementsVisibility();
   });
-  test('verify Close Button Functionality On New Post Creation', async ({ page }) => {
+  test('verify Close Button Functionality On New Post Creation', async ({
+    page,
+  }) => {
     await page.locator(postsLocators.closeBtnLocator).click();
     const homePage = new HomePage(page);
     await homePage.validateHomePageElementsVisibility();
   });
-  test.only('Create Post', async ({ page }) => {
+});
+
+test.describe('tests profile post', () => {
+  -test.beforeEach(async ({ page }) => {
+    const loginPage = new LoginPage(page);
+    await loginPage.performLogin('testuser', 'testpassword');
+  });
+  test('Create Post', async ({ page }) => {
     const postsPage = new PostsPage(page);
     await postsPage.createPost();
-    await postsPage.validatePostsBD();
+  });
+  test('list Posts', async ({ page }) => {
+    const postsPage = new PostsPage(page);
+    await postsPage.validateListPostsBD();
+  });
+});
+
+test.describe('tests profile update post CANCEL', () => {
+  test.beforeEach(async ({ page }) => {
+    const loginPage = new LoginPage(page);
+    await loginPage.performLogin('testuser', 'testpassword');
+    await page.waitForSelector(postsLocators.editBtnLocator, { timeout: 5000 });
+    await clickRandomLocator(page, postsLocators.editBtnLocator);
+  });
+  test('verify Cancel Button Functionality On Update Post Creation', async ({
+    page,
+  }) => {
+    await page.locator(postsLocators.cancelBtnLocator).click();
+    const homePage = new HomePage(page);
+    await homePage.validateHomePageElementsVisibility();
+  });
+  test('verify Close Button Functionality On Update Post Creation', async ({
+    page,
+  }) => {
+    await page.locator(postsLocators.closeBtnLocator).click();
+    const homePage = new HomePage(page);
+    await homePage.validateHomePageElementsVisibility();
+  });
+});
+
+test.describe('tests profile update post', () => {
+  test.beforeEach(async ({ page }) => {
+    const loginPage = new LoginPage(page);
+    await loginPage.performLogin('testuser', 'testpassword');
+  });
+  test('Update Post', async ({ page }) => {
+    const postsPage = new PostsPage(page);
+    await postsPage.updatePost();
+  });
+});
+
+test.describe('tests profile delete post CANCEL', () => {
+  test.beforeEach(async ({ page }) => {
+    const loginPage = new LoginPage(page);
+    await loginPage.performLogin('testuser', 'testpassword');
+    await page.waitForSelector(postsLocators.deleteBtnLocator, { timeout: 5000 });
+  });
+  test( 'DELETE CANCEL', async ({ page }) => {
+    const postsPage = new PostsPage(page);
+    await postsPage.deletePostCancel();
+  });
+  test( 'DELETE ', async ({ page }) => {
+    const postsPage = new PostsPage(page);
+    await postsPage.deletePost();
   });
 });
